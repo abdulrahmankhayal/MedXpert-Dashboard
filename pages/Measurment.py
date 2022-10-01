@@ -14,7 +14,7 @@ app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
-app.title = "Clinical Analytics Dashboard"
+
 
 server = app.server
 app.config.suppress_callback_exceptions = True
@@ -60,12 +60,12 @@ def generate_control_card():
             
             options=['Show Conditon', 'Show guidelines'],
             value=[],
-            inline=True,id="clinic-selec",
+            inline=True,id="styling-select",
 ),html.Br(),
             html.P("Select Condition"),
             #html.Br(),
             dcc.Dropdown(
-                id="clinic-select",
+                id="cond-select",
                 options=[{"label": i, "value": i} for i in conditions],
                 value=conditions[:],
                 multi=True,
@@ -84,7 +84,7 @@ def generate_control_card():
             html.Br(),
             html.P("Select Measurements To Show"),
             dcc.Dropdown(
-                id="admit-select",
+                id="msurs-select",
                 options=[{"label": i, "value": i} for i in msurs_list],
                 value=msurs_list[:],
                 multi=True,
@@ -146,11 +146,11 @@ layout = html.Div(
 @callback(
     Output("patient_volume_h", "figure"),
     [
-        Input("admit-select", "value"),
+        Input("msurs-select", "value"),
         Input("date-picker-select", "start_date"),
         Input("date-picker-select", "end_date"),
-        Input("clinic-selec","value"),
-        Input("clinic-select", "value"),
+        Input("styling-select","value"),
+        Input("cond-select", "value"),
 
         #Input("reset-btn", "n_clicks"),
     ],
