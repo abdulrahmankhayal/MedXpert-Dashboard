@@ -3,6 +3,7 @@
 
 from datetime import datetime as dt
 
+import numpy as np 
 from src.RandDataGen import rand_cmmit,rand_tkn
 from src.Graphs import create_pie,Create_HeatScatt
 
@@ -23,7 +24,7 @@ app.config.suppress_callback_exceptions = True
 
 cmmit_df=rand_cmmit(5,60)
 currtkn_df=rand_tkn(5)
-
+n=len(currtkn_df)
 
 drug_list=cmmit_df["drug"].explode().dropna().unique().tolist()
 
@@ -33,8 +34,9 @@ def create_pies():
 
     func to create drug progress chart.
     """
-    n=len(currtkn_df)#number of bar charts
-    w=1150/n #radius of each bar chart 
+    #number of bar charts
+    w=1150/n
+    #radius of each bar chart 
     graph_list=[]#a list to put every single pie in it 
     #iteritaing over rows to draw charts one per iteriation
     for idx,row in currtkn_df.iterrows():
@@ -86,7 +88,7 @@ def generate_control_card():
             html.Br(),
             html.P("Select Drugs To Show"),
             dcc.Dropdown(
-                id="admit-select",
+                id="drugs-select",
                 options=[{"label": i, "value": i} for i in drug_list],
                 value=drug_list[:],
                 multi=True,
@@ -99,7 +101,17 @@ def generate_control_card():
         ],
     )
 
-
+def generate_progressDiv():
+    if n != 0 :
+        return [html.B("Currently Taken Drugs Progress"),
+                html.Br(),
+                html.Br(),
+                *create_pies(),
+                html.Br(),
+                html.Br(),]
+    return [html.B("Currently Taken Drugs Progress"),
+            html.Br(),
+            html.P("No drugs are currently taken",style={"text-align": "center"})]
 
 layout = html.Div(
     id="app-container",
@@ -122,6 +134,8 @@ layout = html.Div(
             ],
         ),
         # Right column
+
+
         html.Div(
             id="right-column",
             className="eight columns",
@@ -131,17 +145,12 @@ layout = html.Div(
                     id="patient_volume_card",
                     children=[
                     html.Hr(),
-                    html.B("Currently Taken Drugs Progress"),
-                    html.Br(),
-                    html.Br(),
-                    *create_pies(),
+                    *generate_progressDiv(),
 
-                        html.Br(),
-                        html.Br(),
-                        html.B("Last 28 Days Comitment"),
-                        html.Hr(),
+                    html.B("Last 28 Days Comitment"),
+                    html.Hr(),
                         # Ensure graphs are correct size, side-by-side with required margin
-                        dcc.Graph(id="patient_volume_hm",style={'width': '1150px', 'height': '800px'}) ,
+                    dcc.Graph(id="patient_volume_hm",style={'width': '1150px', 'height': '800px'}) ,
 
                     ],
                 ),
@@ -151,11 +160,19 @@ layout = html.Div(
     ],
 )
 
+@callback(
+    Output("drugs-select", "options"),
+    Input("date-picker-select", "start_date"),
+    Input("date-picker-select", "end_date"),
+    )
+def update_drugs(start,end):
+    return cmmit_df[np.logical_and(cmmit_df.date>=start,cmmit_df.date<=end)]["drug"].explode().dropna().unique().tolist()
+
 
 @callback(
     Output("patient_volume_hm", "figure"),
     [
-        Input("admit-select", "value"),
+        Input("drugs-select", "value"),
         Input("date-picker-select", "start_date"),
         Input("date-picker-select", "end_date"),
         #Input("reset-btn", "n_clicks"),
