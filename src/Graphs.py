@@ -46,7 +46,8 @@ def getcolor(value):
 
 def create_pie(n,row):
 
-
+    if n== 0 :
+        return
     fig=go.Figure()
     fig.add_trace(go.Pie(   
                           values=[row.completion,100-row.completion],
@@ -56,12 +57,14 @@ def create_pie(n,row):
                           ))
     fig.add_annotation(dict
     (hovertext=row.drug,x=0.5,y=0.5,text=f"{row.completion}%",showarrow=False,font={"size":(30-(0.8*n))}))
-    fig.update_layout(title=(row.drug[:10]) if len(row.drug) > 10 else row.drug,title_x=0.5,font=dict(
+    fig.update_layout(title=(row.drug[:20]) if len(row.drug) > 20 else row.drug,title_x=0.5,font=dict(
             #family="Courier New, monospace",
             size=15-(0.3*n),
             color="RebeccaPurple"
         ))
     w=1150/(n)
+    if w > 200 :
+        w= 200
     fig.update_layout(width=w+10,height=w+10,margin=dict(
         l=1,
         r=1,
@@ -100,12 +103,7 @@ def Create_HeatScatt(df,drugs,start,end):
     else :
         data=np.array(filtered_df.total).reshape(4,7)
         txt=np.array(filtered_df.date.astype("str")).reshape((4,7))
-    fig = go.Figure(data=go.Heatmap(colorscale= [[0.0, 'rgb(236, 218, 154)'],
-                                     [0.16666666666666666, 'rgb(239, 196, 126)'],
-                                     [0.3333333333333333, 'rgb(243, 173, 106)'], [0.5,
-                                     'rgb(247, 148, 93)'], [0.6666666666666666,
-                                     'rgb(249, 123, 87)'], [0.8333333333333334,
-                                     'rgb(246, 99, 86)'], [1.0, 'rgb(238, 77, 90)']],
+    fig = go.Figure(data=go.Heatmap(colorscale= px.colors.sequential.YlOrRd_r[1:],
                         z=data,zmin=0,zmax=100,
                                    x=[x / 10.0 for x in range((nofDoses+1)*5,(nofDoses+1)*75,(nofDoses+1)*10)],
                                    y=[x / 10.0 for x in range((nofDrugs+1)*5,(nofDrugs+1)*45,(nofDrugs+1)*10)],
@@ -221,8 +219,7 @@ def get_fig(df,default=False):
 
 
 def create_timeline(df,start,end,drugs,doctors):
-    #print(drugs)
-    #print(doctors)
+
 
     filtered_df=df[np.logical_and(df.start_date>=start,df.start_date<=end)]
     if drugs !=[]:
@@ -243,8 +240,7 @@ def create_timeline(df,start,end,drugs,doctors):
         ratios=[]
         for interval in intervals:
             ratios.append(interval[1]-interval[0])
-    print(intervals)
-    #print(filtered_df)
+
     colors = px.colors.qualitative.Plotly
 
     #fig.update_layout(title = "Medication TimeLine")
@@ -324,7 +320,7 @@ def create_timeline(df,start,end,drugs,doctors):
         xanchor="left",
         x=0.05
     ))
-    print(fig.layout.width,fig.layout.height)
+
     return fig
 
 #Measurements
@@ -350,8 +346,7 @@ vitals=['temperature',
 def set_hshapes(fig,df,vital,row,col):
     #fig.update_yaxes(tick0=0, dtick=2)
     if(df[vital].min()<vitalsrange[vital]["min"]+5):
-        print(vital)
-        print(df[vital].min())
+
         fig.add_hline(y=vitalsrange[vital]["min"], line_dash="dash", line_color="red",row=row,col=col,
                   annotation=dict(text="Lower Crtical",xref="paper",yref="paper",x=1.05, showarrow=False))
         fig.add_hrect(y1=vitalsrange[vital]["min"],y0=df[vital].min()-5,fillcolor="red",
@@ -410,9 +405,9 @@ def create_lines(df,user_vitals,start,end,style,conds):
         for idx,cond in enumerate(conditions):
             colordic[cond]=colors[idx]
         id=0
-        #print(filtered_df)
+
         for _, v in filtered_df.groupby((filtered_df['condition'].shift() != filtered_df['condition']).cumsum()):
-            #print(v)
+
             if v.condition.unique()[0]:
                 fig.add_vrect(x0=v.index.min(),
                           x1=v.index.max(), opacity=0.3,layer="below", line_width=0,fillcolor=colordic[v.condition.unique()[0]],
@@ -420,7 +415,7 @@ def create_lines(df,user_vitals,start,end,style,conds):
                 id+=1
     if "Show guidelines" in style:
         for idx,vital in enumerate(user_vitals):
-            print(user_vitals)
+
             if vital == "temperature":
                 fig.add_hline(y=37.7, line_dash="dash", line_color="red",row=idx+1,col=1,
                   annotation=dict(text="Crtical",xref="paper",yref="paper",x=1.05, showarrow=False))
