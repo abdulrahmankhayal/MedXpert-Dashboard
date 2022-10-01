@@ -6,13 +6,12 @@ from datetime import datetime as dt
 
 from src.RandDataGen import rand_TimeLine
 from src.Graphs import create_timeline,preprocess
-
+import numpy as np
 register_page(__name__)
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
 )
-app.title = "Clinical Analytics Dashboard"
 
 server = app.server
 app.config.suppress_callback_exceptions = True
@@ -60,7 +59,7 @@ def generate_control_card():
             html.P("Select doctor"),
             #html.Br(),
             dcc.Dropdown(
-                id="clinic-select",
+                id="doctor-select",
                 options=[{"label": i, "value": i} for i in doctors],
                 value=doctors[:],
                 multi=True,
@@ -79,7 +78,7 @@ def generate_control_card():
             html.Br(),
             html.P("Select Drugs To Show"),
             dcc.Dropdown(
-                id="admit-select",
+                id="drug-select",
                 options=[{"label": i, "value": i} for i in admit_list],
                 value=admit_list[:],
                 multi=True,
@@ -129,7 +128,7 @@ layout = html.Div(
                     children=[
                         html.B("Medication Timeline"),
                         html.Hr(),
-                        dcc.Graph(id="patient_volume",style={"width":f"{sum([10+i[1]-i[0] for i in intervals])*(1+0.05*(len(intervals)-1))*12}px",
+                        dcc.Graph(id="drug_timeline",style={"width":f"{sum([10+i[1]-i[0] for i in intervals])*(1+0.05*(len(intervals)-1))*12}px",
                             'height': f'{50*df.drug.nunique()}px',}) ,
 
                     ],style={"width":f"{sum([10+i[1]-i[0] for i in intervals])*(1+0.05*(len(intervals)-1))*12}px",
@@ -145,13 +144,32 @@ layout = html.Div(
 
 
 @callback(
-    Output("patient_volume", "figure"),
+    Output("drug-select", "options"),
+    Input("doctor-select", "value"),
+    Input("date-picker-select", "start_date"),
+    Input("date-picker-select", "end_date"),
+    )
+def update_drugs(doctors,start,end):
+    return df[np.logical_and(df.start_date>=start,df.start_date<=end)][df.doctor.isin(doctors)]["drug"].unique().tolist()
+
+@callback(
+    Output("doctor-select", "options"),
+    Input("date-picker-select", "start_date"),
+    Input("date-picker-select", "end_date"),
+    )
+def update_drgswdocs(start,end):
+    filterdf=df[np.logical_and(df.start_date>=start,df.start_date<=end)]
+    doctors_filtrd= [i for i in filterdf.doctor.unique() if i ]
+    return doctors_filtrd
+
+
+@callback(
+    Output("drug_timeline", "figure"),
     [
         Input("date-picker-select", "start_date"),
         Input("date-picker-select", "end_date"),
-        Input("admit-select", "value"),
-        Input("clinic-select", "value"),
-        #Input("patient_volume_hm", "clickData"),
+        Input("drug-select", "value"),
+        Input("doctor-select", "value"),
 
         #Input("reset-btn", "n_clicks"),
     ],
