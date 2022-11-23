@@ -57,19 +57,26 @@ Single figure consist of many virtical subplots each subplot represent a vital.
 
 ![](media/c4109ce81a61e7f731b2213d72c76c0d.jpeg)
 
-![](media/a37be43639af98277ef108aec406d0c8.jpeg)Show condition annotation:
+Show condition annotation:
+
+![](media/a37be43639af98277ef108aec406d0c8.jpeg)
 
 Coloring regions of the chart for each condition to allow user seeing at which condition these measurements recorded.
 
 ![](media/81c54e6cc902044621e3515bca7e9f9b.jpeg)
 
-![](media/015b5b0c3d143ad3e1808c82a9bdecd7.jpeg)Show guidelines annotation:
+Show guidelines annotation:
+
+![](media/015b5b0c3d143ad3e1808c82a9bdecd7.jpeg)
 
 Show the user information about vital he is looking at, indicating the critical values of vitals and to what extent values are critical
 
 ![Graphical user interface, timeline Description automatically generated](media/ace0b62ccbd6d8d2bcc8f20f70aa6c62.jpeg)
 
--   ![](media/51642ab8fa3a6c92516baf072d67ef7b.jpeg)When the user hovers over a data point in the chart, a more informative data will show off.
+-   When the user hovers over a data point in the chart, a more informative data will show off.
+
+![](media/51642ab8fa3a6c92516baf072d67ef7b.jpeg)
+
 -   In addition to the Plotly toolbar.
 
 ### Medication timeline page
